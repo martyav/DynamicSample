@@ -11,17 +11,20 @@ namespace DynamicSample
         static void Main(string[] args)
         {
             dynamic rFile = new ReadOnlyFile(@"..\..\TextFile1.txt");
-            foreach (string line in rFile.Customer)
+
+            foreach (string line in rFile.List)
             {
                 Console.WriteLine(line);
             }
 
             Console.WriteLine("----------------------------");
 
-            foreach (string line in rFile.Customer(StringSearchOption.Contains, true))
+            foreach (string line in rFile.And(StringSearchOption.Contains, true))
             {
                 Console.WriteLine(line);
             }
+
+            Console.ReadKey();
         }
     }
 }

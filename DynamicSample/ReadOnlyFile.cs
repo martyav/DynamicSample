@@ -29,6 +29,58 @@ namespace DynamicSample
             _filePath = filePath;
         }
 
+        #region overrides
+
+        // These two both do the same thing -- check if the member exists
+        //
+        // The first is run if you try to call a member without specifying any arguments
+        // Its sibling is called if you try to call a member while specifying arguments
+        //
+        // The binder is how we pass them information about the member
+        //
+        // The member's name is the string representation of the name of the member
+        //
+        // For example, in file.Customer, we'd get a string containing "Customer" when we call binder.Name
+
+        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        {
+            result = GetPropertyValue(binder.Name);
+            return result == null ? false : true;
+        }
+
+        public override bool TryInvokeMember(InvokeMemberBinder binder,
+                                     object[] args,
+                                     out object result)
+        {
+            StringSearchOption StringSearchOption = StringSearchOption.StartsWith;
+            bool trimSpaces = true;
+
+            try
+            {
+                if (args.Length > 0) { StringSearchOption = (StringSearchOption)args[0]; }
+            }
+            catch
+            {
+                throw new ArgumentException("StringSearchOption argument must be a StringSearchOption enum value.");
+            }
+
+            try
+            {
+                if (args.Length > 1) { trimSpaces = (bool)args[1]; }
+            }
+            catch
+            {
+                throw new ArgumentException("trimSpaces argument must be a Boolean value.");
+            }
+
+            result = GetPropertyValue(binder.Name, StringSearchOption, trimSpaces);
+
+            return result == null ? false : true;
+        }
+        #endregion
+
+        #region meaty custom method
+
         public List<string> GetPropertyValue(string propertyName,
                                      StringSearchOption StringSearchOption = StringSearchOption.StartsWith,
                                      bool trimSpaces = true)
@@ -76,43 +128,6 @@ namespace DynamicSample
 
             return results;
         }
-
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
-        {
-            result = GetPropertyValue(binder.Name);
-            return result == null ? false : true;
-        }
-
-        // Implement the TryInvokeMember method of the DynamicObject class for 
-        // dynamic member calls that have arguments.
-        public override bool TryInvokeMember(InvokeMemberBinder binder,
-                                     object[] args,
-                                     out object result)
-        {
-            StringSearchOption StringSearchOption = StringSearchOption.StartsWith;
-            bool trimSpaces = true;
-
-            try
-            {
-                if (args.Length > 0) { StringSearchOption = (StringSearchOption)args[0]; }
-            }
-            catch
-            {
-                throw new ArgumentException("StringSearchOption argument must be a StringSearchOption enum value.");
-            }
-
-            try
-            {
-                if (args.Length > 1) { trimSpaces = (bool)args[1]; }
-            }
-            catch
-            {
-                throw new ArgumentException("trimSpaces argument must be a Boolean value.");
-            }
-
-            result = GetPropertyValue(binder.Name, StringSearchOption, trimSpaces);
-
-            return result == null ? false : true;
-        }
+        #endregion
     }
 }
